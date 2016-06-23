@@ -1,7 +1,9 @@
+# coding: utf-8
 import docx
 import pandas as pd
+
 from .excel import Excel
-import types
+
 
 def Word(filepath_or_buffer=None):
     """

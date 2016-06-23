@@ -1,10 +1,11 @@
 # coding: utf-8
 from urllib.parse import urlparse
 import re
-import pandas as pd
-from bs4 import BeautifulSoup
 import importlib
 from . import io
+
+import pandas as pd
+from bs4 import BeautifulSoup
 
 def get_soup(src, encoding='utf-8'):
     """Returns BeautifulSoup from URL or file

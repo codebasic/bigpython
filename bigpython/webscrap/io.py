@@ -1,5 +1,7 @@
+# coding: utf-8
 import sys
 from urllib.parse import urlparse, unquote, unquote_plus
+
 import requests
 
 def snapshot_webpage(url, filename=None, mode='wb', data=None):

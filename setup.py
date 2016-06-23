@@ -9,6 +9,10 @@ setup(name='bigpython',
     packages=['bigpython', 'bigpython.webscrap', 'bigpython.office'],
     package_dir={'bigpython':'bigpython'},
     install_requires=[
+        'pandas',
+        'beautifulsoup4',
+        'selenium',
+        'requests',
         'imapclient',
         'python-docx'
     ])
