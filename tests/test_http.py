@@ -6,16 +6,6 @@ from urllib.parse import quote_plus
 
 from bigpython.webscrap import http
 
-def test_http_download():
-    res = http.download('http://google.com')
-    assert res.status_code == 200
-
-    with pytest.raises(requests.ConnectionError):
-        http.download('http://no-such-domain.com')
-
-    with pytest.raises(requests.HTTPError):
-        http.download('http://google.com/nosuchpath')
-
 def test_unquote_url():
     url = 'https://ko.wikipedia.org/wiki/%EC%95%A8%EB%9F%B0_%ED%8A%9C%EB%A7%81'
     url_unquoted = http.unquote_url(url)
