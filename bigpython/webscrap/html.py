@@ -15,6 +15,7 @@ class Html(BeautifulSoup):
         text = ''
         for e in elements:
             text += e.text
+            text += '\n'
 
         return text
 
