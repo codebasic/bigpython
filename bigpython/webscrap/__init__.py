@@ -1,10 +1,11 @@
 # coding: utf-8
-from . import io, html
-
 import pip
 import platform, sys, os, stat, zipfile
-import requests
 import time
+
+import requests
+
+from . import html, http
 
 def get_browser(browser='Chrome', driverpath=None):
     driver_map = {'Chrome': 'chromedriver'}
@@ -71,18 +72,6 @@ def test_webdriver(driverfile):
     search_box.submit()
     time.sleep(10)
     chrome.quit()
-
-def http_download(url, 파일경로):
-    응답 = requests.get(url)
-    if os.path.exists(파일경로):
-        print('File already exists')
-        return 파일경로
-
-    with open(파일경로, 'wb') as 파일:
-        for 조각 in 응답.iter_content(100000):
-            파일.write(조각)
-
-    return 파일경로
 
 if __name__ == '__main__':
     setup_webdriver()

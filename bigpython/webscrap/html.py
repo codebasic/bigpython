@@ -2,8 +2,8 @@
 from urllib.parse import urlparse
 import re
 import importlib
-from . import io
 
+import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
@@ -16,7 +16,7 @@ def get_soup(src, encoding='utf-8'):
     # check if url or filepath
     scheme = urlparse(src).scheme
     if re.compile('(http|https)').match(scheme):
-        res = io.http_download(src)
+        res = requests.get(src)
         doc = res.text
     else:
         doc = open(src, encoding=encoding)
