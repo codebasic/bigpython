@@ -1,2 +1,2 @@
+# coding: utf-8
 from . import office, webscrap
-print('{} imported'.format(__name__))
