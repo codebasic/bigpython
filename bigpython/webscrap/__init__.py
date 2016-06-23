@@ -4,6 +4,7 @@ import platform, sys, os, stat, zipfile
 import time
 from urllib.parse import urlparse
 import re
+import importlib
 
 import requests
 
@@ -41,13 +42,18 @@ def get_browser(browser='Chrome', driverpath=None):
     else:
         if driverpath is None:
             driverpath = os.path.join('.', driver_map[browser])
+            if not os.path.exists(driverpath):
+                raise OSError('No driver file at {}'.format(driverpath))
+        if os.path.dirname(driverpath) == '':
+            driverpath = os.path.join('.', driverpath)
         driver = getattr(webdriver, browser)(driverpath)
         return driver
 
 
-def setup_webdriver():
+def setup_webdriver(test=False):
     # selenium package 설치
-    pip.main(['install', 'selenium'])
+    if not importlib.find_loader('selenium'):
+        pip.main(['install', 'selenium'])
 
     print('chromedriver 다운로드')
     downloaded_file = download_chromedriver()
@@ -64,11 +70,14 @@ def setup_webdriver():
     st = os.stat(driverfile)
     os.chmod(driverfile, st.st_mode | stat.S_IEXEC)
 
-    print('설정 테스트 ...', end=' ')
-    test_webdriver(driverfile)
-    print('완료')
+    if test:
+        print('설정 테스트 ...', end=' ')
+        test_webdriver(driverfile)
+        print('완료')
 
-def download_chromedriver():
+    return driverfile
+
+def download_chromedriver(extract=True):
     driverfile_map = {'Windows': 'chromedriver_win32.zip',
         'Darwin': 'chromedriver_mac32.zip'}
     download_target = driverfile_map.get(platform.system(), None)
@@ -78,7 +87,7 @@ def download_chromedriver():
     chromedriver_url = 'http://chromedriver.storage.googleapis.com/2.22/'
     chromedriver_url = chromedriver_url + download_target
 
-    driverfilepath = http_download(chromedriver_url, download_target)
+    driverfilepath = http.download(chromedriver_url, download_target)
     return driverfilepath
 
 def test_webdriver(driverfile):
