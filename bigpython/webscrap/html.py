@@ -1,6 +1,4 @@
 # coding: utf-8
-from urllib.parse import urlparse
-import re
 import importlib
 
 import requests

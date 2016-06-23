@@ -12,8 +12,8 @@ def test_extract_table():
     # 파일 삭제
     os.unlink(filename)
 
-    table_frames = html_doc.extract_tables('table.wikitable')
-    assert table_frames[0].ix[0,0] == '1912년'
+    table_frame = html_doc.extract_tables('table.wikitable')
+    assert table_frame[0].ix[0,0] == '1912년'
 
 def test_get_html():
     # source is url
