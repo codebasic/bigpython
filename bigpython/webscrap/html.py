@@ -7,24 +7,20 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
-def get_soup(src, encoding='utf-8'):
-    """Returns BeautifulSoup from URL or file
+class Html(BeautifulSoup):
+    def __init__(self, html):
+        parser = 'lxml' if importlib.find_loader('lxml') else 'html.parser'
+        super().__init__(html, parser)
 
-    src: url or filepath
-    encoding: (default=utf-8)
-    """
-    # check if url or filepath
-    scheme = urlparse(src).scheme
-    if re.compile('(http|https)').match(scheme):
-        res = requests.get(src)
-        doc = res.text
-    else:
-        doc = open(src, encoding=encoding)
+    def get_text(self, selector='p'):
+        elements = self.select(selector)
+        text = ''
+        for e in elements:
+            text += e.text
 
-    # select parser for BeautifulSoup
-    parser = 'lxml' if importlib.find_loader('lxml') else 'html.parser'
-    return BeautifulSoup(doc, parser)
+        return text
 
-def extract_tables(table_elements):
-    table_frames = pd.read_html(str(table_elements))
-    return table_frames
+    def extract_tables(self, selector):
+        table_elements = self.select(selector)
+        table_frames = pd.read_html(str(table_elements))
+        return table_frames[0] if len(table_frames) == 1 else table_frames

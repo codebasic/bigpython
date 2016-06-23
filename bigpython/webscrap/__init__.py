@@ -2,10 +2,30 @@
 import pip
 import platform, sys, os, stat, zipfile
 import time
+from urllib.parse import urlparse
+import re
 
 import requests
 
 from . import html, http
+
+def get_html(src, encoding='utf-8'):
+    """Returns BeautifulSoup from URL or file
+
+    src: url or filepath
+    encoding: (default=utf-8)
+    """
+    # check if url or filepath
+    scheme = urlparse(src).scheme
+    if re.compile('(http|https)').match(scheme):
+        res = requests.get(src)
+        doc = res.text
+    else:
+        doc = open(src, encoding=encoding)
+
+    # select parser for BeautifulSoup
+    # return BeautifulSoup(doc, parser)
+    return html.Html(doc)
 
 def get_browser(browser='Chrome', driverpath=None):
     driver_map = {'Chrome': 'chromedriver'}
