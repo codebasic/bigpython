@@ -4,6 +4,7 @@ import configparser
 import email
 from email.header import decode_header
 import subprocess
+import getpass
 
 from imapclient import IMAPClient
 
@@ -17,6 +18,12 @@ class EmailConfig:
         config = configparser.ConfigParser()
         config.read(self.configpath)
         return config
+
+    def get_credential(self, section='DEFAULT'):
+        config = self.config
+        username = config[section]['username']
+        password = config[section]['password']
+        return username, password
 
     def get_access_token(self, section, refresh=False):
         config = self.config
@@ -87,6 +94,17 @@ class EmailClient:
             self.select_folder()
         return result
 
+    def login(self, default_mailbox='INBOX', configfile=None):
+        if configfile is None:
+            username = input('이메일 계정: ')
+            password = getpass.getpass(prompt='비밀번호: ')
+
+        config = EmailConfig(configfile)
+        username, password = config.get_credential()
+
+        self._imapclient.login(username, password)
+        return self.select_folder(folder = default_mailbox)
+
     def logout(self):
         return self._imapclient.logout()
 
@@ -125,3 +143,52 @@ class EmailClient:
                 content = content.decode(encoding if encoding else 'utf-8')
             content_list.append(content)
         return content_list
+
+    def get_text(self, message_or_message_id):
+        if type(message_or_message_id) == int:
+            mid, message = self.get_messages(message_or_message_id)[0]
+
+        for part in message.walk():
+            content_type = part.get_content_type()
+            if content_type.startswith('text'):
+                text = part.get_payload(decode=True).decode('utf-8')
+                yield content_type, text
+
+    def show_attachments(self, message_or_message_id):
+        if type(message_or_message_id) == int:
+            mid, message = self.get_messages(message_or_message_id)[0]
+
+        attachment_list = []
+        if not message.is_multipart():
+            return attachment_list
+
+        for part in message.walk():
+            content_type = part.get_content_type()
+            if content_type.startswith('text'): continue
+            filename = part.get_filename()
+            if filename:
+                attachment_list.append(filename)
+
+        return attachment_list
+
+    def download_attachments(self, message_or_message_id, target_dir=None):
+        if type(message_or_message_id) == int:
+            mid, message = self.get_messages(message_or_message_id)[0]
+
+        file_list = []
+        for part in message.walk():
+            content_type = part.get_content_type()
+            if content_type.startswith('text'): continue
+            filename = part.get_filename()
+            if not filename: continue
+
+            if target_dir:
+                if not os.path.exists(target_dir):
+                    raise FileNotFoundError('{} 경로가 존재하지 않습니다.'.format(target_dir))
+                filename = os.path.join(target_dir, filename)
+
+            with open(filename, 'wb') as f:
+                f.write(part.get_payload(decode=True))
+            file_list.append(os.path.abspath(filename))
+
+        return file_list
