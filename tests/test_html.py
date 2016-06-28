@@ -7,7 +7,7 @@ from bigpython.webscrap  import http, html
 def test_extract_table():
     url = 'https://ko.wikipedia.org/wiki/%EC%95%A8%EB%9F%B0_%ED%8A%9C%EB%A7%81'
     filename = http.download(url, 'turing_wiki.html')
-    with open(filename) as f:
+    with open(filename, encoding='utf-8') as f:
         html_doc = html.Html(f)
     # 파일 삭제
     os.unlink(filename)
