@@ -36,3 +36,26 @@ def test_get_text(imapclient):
     for mid in message_ids:
         for content_type, text in imapclient.get_text(mid):
             assert content_type.startswith('text')
+
+def test_download_attachments(imapclient):
+    message_ids = imapclient.search(['SUBJECT', '빅파이'])
+
+    download_files = []
+
+    for mid in message_ids:
+        attachment_list = imapclient.download_attachments(mid)
+        for filepath in attachment_list:
+            assert os.path.exists(filepath)
+            download_files.append(filepath)
+
+    for mid in message_ids:
+        userhome = os.path.expanduser('~')
+        target_dir = os.path.join(userhome, 'Downloads')
+        attachment_list = imapclient.download_attachments(mid, target_dir=target_dir)
+        for filepath in attachment_list:
+            assert os.path.exists(filepath)
+            download_files.append(filepath)
+
+
+    for filepath in download_files:
+        os.unlink(filepath)
