@@ -5,7 +5,6 @@ setup(name='bigpython',
     description='Make things easier for data analysis and automation',
     author='Lee Seongjoo',
     author_email='seongjoo@codebasic.co',
-    py_modules=['bigpython.mail'],
     packages=['bigpython', 'bigpython.webscrap', 'bigpython.office'],
     package_dir={'bigpython':'bigpython'},
     install_requires=[
