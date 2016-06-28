@@ -30,3 +30,9 @@ def test_search(imapclient):
     message_ids = imapclient.search(['SUBJECT', '빅파이'])
     for header in imapclient.get_subjects(message_ids):
         assert '빅파이' in header['Subject']
+
+def test_get_text(imapclient):
+    message_ids = imapclient.search(['SUBJECT', '빅파이'])
+    for mid in message_ids:
+        for content_type, text in imapclient.get_text(mid):
+            assert content_type.startswith('text')
