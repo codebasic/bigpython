@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 class Html(BeautifulSoup):
     def __init__(self, html):
         parser = 'lxml' if importlib.find_loader('lxml') else 'html.parser'
-        super().__init__(html, parser)
+        super().__init__(html, parser, from_encoding='utf-8')
 
     def get_text(self, selector='p'):
         elements = self.select(selector)
