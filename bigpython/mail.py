@@ -232,10 +232,12 @@ class EmailClient:
 
         msg = email.message_from_bytes(msg.encode('utf-8'))
         msg['Subject'] = email.header.Header(subject, 'utf-8')
-        
-        ressult = smtp_server.send_message(msg=msg,
+
+        result = smtp_server.send_message(msg=msg,
             from_addr=from_addr,
             to_addrs=to_addrs,
             mail_options=mail_options)
 
         smtp_server.quit()
+
+        return result
