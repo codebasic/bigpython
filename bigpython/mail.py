@@ -5,6 +5,7 @@ import email
 from email.header import decode_header
 import subprocess
 import getpass
+import smtplib
 
 from imapclient import IMAPClient
 
@@ -68,16 +69,22 @@ class EmailConfig:
 class EmailClient:
     def __init__(self,
         host,
-        port=None,
         use_uid=True,
-        ssl=False,
+        imap_port=None,
+        imap_ssl=True,
+        smtp_port=None,
+        smtp_ssl=True,
         stream=False,
         ssl_context=None,
         timeout=None,
-        method=None,
-        debug=False):
-        self.debug = debug
-        self._imapclient = IMAPClient(host, ssl=ssl)
+        method=None):
+
+        self.host = host
+
+        self._imapclient = self._connect_imap_server(imap_ssl, imap_port)
+
+        self._smpt_server = self._connect_smtp_server(smtp_ssl, port=smtp_port)
+
         if method:
             if 'oauth2' in method:
                 oauth2_config = method['oauth2']
@@ -87,6 +94,23 @@ class EmailClient:
                 login_result = self.oauth2_login(self.mailconfig.user,
                     self.mailconfig.access_token)
                 print(login_result)
+
+    def _connect_imap_server(self, ssl=True, port=None):
+        host = '.'.join(['imap', self.host])
+        return IMAPClient(host, ssl=ssl)
+
+    def _connect_smtp_server(self, ssl=True, port=0):
+        if ssl:
+            SMTP = smtplib.SMTP_SSL
+        else:
+            SMTP = smtplib.SMTP
+
+        smtp_server = SMTP(
+            host='.'.join(['smtp', self.host]),
+            port=port)
+
+        return smtp_server
+
 
     def oauth2_login(self, user, access_token):
         result = self._imapclient.oauth2_login(user, access_token)
@@ -101,6 +125,8 @@ class EmailClient:
 
         config = EmailConfig(configfile)
         username, password = config.get_credential()
+        self.username = username
+        self.from_addr = '{}@{}'.format(username, self.host)
 
         self._imapclient.login(username, password)
         return self.select_folder(folder = default_mailbox)
@@ -192,3 +218,22 @@ class EmailClient:
             file_list.append(os.path.abspath(filename))
 
         return file_list
+
+    def send_message(self, to_addrs, msg, from_addr=None,
+        mail_options=[]):
+
+        smtp_server = self._smpt_server
+
+        password = getpass.getpass(prompt='비밀번호: ')
+        smtp_server.login(self.username, password)
+
+        if not from_addr:
+            from_addr = self.from_addr
+
+        msg = email.message_from_string(msg)
+        ressult = smtp_server.send_message(msg=msg,
+            from_addr=from_addr,
+            to_addrs=to_addrs,
+            mail_options=mail_options)
+
+        smtp_server.quit()

@@ -12,38 +12,38 @@ def get_config(configfile='login.cfg'):
     return configfile
 
 @pytest.fixture(scope='module')
-def imapclient(request):
-    host = getattr(request.module, 'host', 'imap.naver.com')
-    imapclient = EmailClient(host, ssl=True)
-    imapclient.login(configfile=get_config())
-    return imapclient
+def mailclient(request):
+    host = getattr(request.module, 'host', 'naver.com')
+    mailclient = EmailClient(host)
+    mailclient.login(configfile=get_config())
+    return mailclient
 
 def test_create_emailclient():
-    assert EmailClient('imap.naver.com', ssl=True) != None
+    assert EmailClient('naver.com') != None
 
 def test_login():
-    host = 'imap.naver.com'
-    imapclient = EmailClient(host, ssl=True)
-    assert imapclient.login(configfile=get_config())
+    host = 'naver.com'
+    mailclient = EmailClient(host)
+    assert mailclient.login(configfile=get_config())
 
-def test_search(imapclient):
-    message_ids = imapclient.search(['SUBJECT', '빅파이'])
-    for header in imapclient.get_subjects(message_ids):
+def test_search(mailclient):
+    message_ids = mailclient.search(['SUBJECT', '빅파이'])
+    for header in mailclient.get_subjects(message_ids):
         assert '빅파이' in header['Subject']
 
-def test_get_text(imapclient):
-    message_ids = imapclient.search(['SUBJECT', '빅파이'])
+def test_get_text(mailclient):
+    message_ids = mailclient.search(['SUBJECT', '빅파이'])
     for mid in message_ids:
-        for content_type, text in imapclient.get_text(mid):
+        for content_type, text in mailclient.get_text(mid):
             assert content_type.startswith('text')
 
-def test_download_attachments(imapclient):
-    message_ids = imapclient.search(['SUBJECT', '빅파이'])
+def test_download_attachments(mailclient):
+    message_ids = mailclient.search(['SUBJECT', '빅파이'])
 
     download_files = []
 
     for mid in message_ids:
-        attachment_list = imapclient.download_attachments(mid)
+        attachment_list = mailclient.download_attachments(mid)
         for filepath in attachment_list:
             assert os.path.exists(filepath)
             download_files.append(filepath)
@@ -51,11 +51,16 @@ def test_download_attachments(imapclient):
     for mid in message_ids:
         userhome = os.path.expanduser('~')
         target_dir = os.path.join(userhome, 'Downloads')
-        attachment_list = imapclient.download_attachments(mid, target_dir=target_dir)
+        attachment_list = mailclient.download_attachments(mid, target_dir=target_dir)
         for filepath in attachment_list:
             assert os.path.exists(filepath)
             download_files.append(filepath)
 
-
     for filepath in download_files:
         os.unlink(filepath)
+
+
+def test_sendmail(mailclient):
+    msg = 'Subject: I am seongjoo\nThank you.'
+    result = mailclient.send_message('seongjoo@codebasic.co', msg)
+    assert not result
