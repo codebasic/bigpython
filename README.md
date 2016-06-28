@@ -1,6 +1,6 @@
 # bigpython
 
-이성주, 코드베이직
+이성주, 코드베이직 2016
 
 seongjoo@codebasic.co
 
