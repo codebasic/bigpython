@@ -61,6 +61,7 @@ def test_download_attachments(mailclient):
 
 
 def test_sendmail(mailclient):
-    msg = 'Subject: I am seongjoo\nThank you.'
-    result = mailclient.send_message('seongjoo@codebasic.co', msg)
+    subject = '이성주가 이성주에게'
+    msg = '고맙습니다.\n감사합니다.'
+    result = mailclient.send_message('lseongjoo@daum.net', subject, msg)
     assert not result

@@ -219,7 +219,7 @@ class EmailClient:
 
         return file_list
 
-    def send_message(self, to_addrs, msg, from_addr=None,
+    def send_message(self, to_addrs, subject, msg, from_addr=None,
         mail_options=[]):
 
         smtp_server = self._smpt_server
@@ -230,7 +230,9 @@ class EmailClient:
         if not from_addr:
             from_addr = self.from_addr
 
-        msg = email.message_from_string(msg)
+        msg = email.message_from_bytes(msg.encode('utf-8'))
+        msg['Subject'] = email.header.Header(subject, 'utf-8')
+        
         ressult = smtp_server.send_message(msg=msg,
             from_addr=from_addr,
             to_addrs=to_addrs,
