@@ -12,7 +12,7 @@ install_requires = [
 ]
 
 setup(name='bigpython',
-    version='0.1',
+    version='0.1.1',
     description='Make things easier for data analysis and automation',
     author='Lee Seongjoo',
     author_email='seongjoo@codebasic.co',

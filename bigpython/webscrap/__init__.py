@@ -8,6 +8,8 @@ import importlib
 
 import requests
 
+from selenium.webdriver.support.ui import Select as HtmlSelect
+
 from . import html, http
 
 def get_html(src, encoding='utf-8'):
